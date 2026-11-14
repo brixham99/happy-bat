@@ -26,6 +26,8 @@ The game has been tested in Fuse 1.6 with tape traps both on and off.
 
 Type `LOAD ""` and press ENTER, then start the tape if your emulator does not start it for you. The program runs by itself once it has loaded. It sets `CLEAR 59999`, loads its machine code (`hbcode`, the second block on the tape), and shows the title screen. `happybat.tzx` holds the same two blocks as `happybat.tap`.
 
+On The Spectrum (Retro Games, 2024), use `happybat.tzx`: in Media select pick it and press M (not ENTER), close the menu, type `LOAD ""`, then hold HOME and press Down to open the tape controller and press play (its instant `.tap` loading does not work with OpticOS; see the OpticOS manual, "Loading on The Spectrum (2024)").
+
 ## Controls
 
 | Key | |
