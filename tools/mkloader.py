@@ -12,22 +12,30 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from paths import HB
 code = open(os.path.join(HB, 'build/hbcode.bin'), 'rb').read()
-ORG, N, PER = 60000, len(code), 16
+ORG, N = 60000, len(code)
+# --per 8: 8 bytes a DATA line (narrow enough for the A5 manual), written
+# with --out to another file; the default is 16 a line, to hbloader.bas.
+args = sys.argv[1:]
+PER = int(args[args.index('--per') + 1]) if '--per' in args else 16
+OUT = args[args.index('--out') + 1] if '--out' in args else os.path.join(HB, 'hbloader.bas')
+ONLY_LOADER = '--out' in args
 END = ORG + N
 def lines():
     for o in range(0, N, PER):
         chunk = code[o:o + PER]
         yield ORG + o, chunk, sum((i + 1) * b for i, b in enumerate(chunk))
 data = ['DATA %d, %s, %d' % (a, ', '.join('$%02X' % b for b in c), k) for a, c, k in lines()]
-assert max(len(l) for l in data) <= 120, max(len(l) for l in data)   # fits the 128-byte input line
+assert max(len(l) for l in data) <= (64 if PER <= 8 else 120), max(len(l) for l in data)   # fits the 128-byte input line
 total = sum(code)
+EACH = ("' Each DATA line: its address, 16 bytes in hex ($C3 = 195), and\n' a check number: the bytes weighted 1, 2, 3 ... 16 and added."
+        if PER == 16 else
+        "' Each DATA line: its address, %d bytes in hex ($C3 = 195),\n' and a check number: the bytes weighted 1, 2, 3 ... %d, added." % (PER, PER))
 loader = f"""' =============================================================
 ' HBCODE - type-in loader for Happy Bat's machine code
 ' Type this in and RUN it. It puts the {N:,} bytes of code at
 ' {ORG}-{END - 1}, checks every line, and saves them to tape
 ' as "hbcode" CODE {ORG},{N}, for happybat.bas to load.
-' Each DATA line: its address, 16 bytes in hex ($C3 = 195), and
-' a check number: the bytes weighted 1, 2, 3 ... 16 and added.
+{EACH}
 ' A wrong line stops the program with its address, so you can
 ' find it; the last DATA item is the sum of all the bytes.
 ' =============================================================
@@ -37,7 +45,7 @@ REPEAT
   READ d
   IF d <> a THEN ERROR 200, "DATA out of step at " + STR$ a
   s = 0
-  FOR i = 1 TO MIN(16, {END} - a)
+  FOR i = 1 TO MIN({PER}, {END} - a)
     READ b: POKE a, b: a = a + 1
     s = s + i * b: t = t + b
   NEXT
@@ -51,7 +59,9 @@ PRINT "Saving hbcode. Start the tape."
 SAVE "hbcode" CODE {ORG}, {N}
 PRINT "Done."
 """ + '\n'.join(data) + f'\nDATA {total}\n'
-open(os.path.join(HB, 'hbloader.bas'), 'w').write(loader)
+open(OUT, 'w').write(loader)
+if ONLY_LOADER:
+    print('%s: %d DATA lines of %d, longest %d chars' % (OUT, len(data), PER, max(map(len, data)))); sys.exit()
 hexd = '\n'.join('%5d  %04X  ' % (ORG + o, ORG + o) + ' '.join('%02X' % b for b in code[o:o + 16])
                  for o in range(0, N, 16))
 open(os.path.join(HB, 'build/hbcode_hex.txt'), 'w').write(hexd + '\n')

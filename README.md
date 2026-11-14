@@ -10,6 +10,8 @@ Fly the bat through the gaps in the pipes. Each pipe you pass scores a point, an
 
 It is written mostly in **OpticBASIC** (no line numbers, named procedures, no GOTO or GOSUB), with 1,095 bytes of Z80 machine code for the parts that have to be fast.
 
+Happy Bat is also on the **OpticOS example tape** (`examples/opticos_examples.tap` in the [OpticOS repository](https://github.com/brixham99/OpticOS)); type `LOAD "happybat"` and it runs by itself. It is the last worked example in the **[OpticOS user manual](https://github.com/brixham99/OpticOS/blob/main/docs/manual/OpticOS_User_Manual.pdf)**, which prints the full listing, the machine code as a type-in loader and the annotated assembler source.
+
 ## What you need
 
 Happy Bat runs on **[OpticOS](https://github.com/brixham99/OpticOS) v1.0.1**, a clean-room replacement ROM for the 48K ZX Spectrum. Get the ROM from the [OpticOS releases](https://github.com/brixham99/OpticOS/releases). It is not included here. Happy Bat will not run on the Sinclair ROM.
@@ -70,7 +72,7 @@ OpticBASIC's `CALL` and `USR` pass no register values, so BASIC POKEs a small pa
 | | |
 |---|---|
 | `happybat.bas`, `happybat.asm` | the two sources, both fully commented |
-| `hbloader.bas` | a type-in OpticBASIC loader for the machine code, with checksums; it saves `hbcode` to tape |
+| `hbloader.bas` | a type-in OpticBASIC loader for the machine code, with checksums; it saves `hbcode` to tape. The manual prints the same loader with 8 bytes a line (`tools/mkloader.py --per 8 --out file`), which makes the same code |
 | `happybat.tap`, `happybat.tzx` | the game on tape, saved by the OpticOS ROM's own `SAVE` |
 | `happybat_listing.md` | the full listing and notes |
 | `build/` | the assembled code (`hbcode.bin`, `hbcode.sym`), a hex dump, the manual section and the test results |

@@ -9,7 +9,10 @@ from paths import *
 from p3lib import Basic
 from rig import decode_pulses
 code = open(os.path.join(HB, 'build/hbcode.bin'), 'rb').read()
-src = [l.strip() for l in open(os.path.join(HB, 'hbloader.bas')) if l.strip()]
+# an optional argument names another loader file (e.g. the 8-a-line one)
+LOADER = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HB, 'hbloader.bas')
+src = [l.strip() for l in open(LOADER) if l.strip()]
+print('loader file:', LOADER)
 ok = True
 def check(name, c, info=''):
     global ok; ok &= bool(c); print('%-55s %s %s' % (name, 'PASS' if c else 'FAIL', info))
@@ -35,15 +38,16 @@ tap = open(os.path.join(HB, 'happybat.tap'), 'rb').read()
 check('loader: its block is the one on happybat.tap', bytes(data) in tap)
 # errors
 dl = [i for i, l in enumerate(src) if l.startswith('DATA ') and ',' in l]
-i = dl[3]; parts = src[i].split(', ')
+i = dl[3]; parts = src[i].split(', '); at = parts[0].split()[1]
 bad = list(src); p2 = list(parts); p2[5] = '$%02X' % ((int(p2[5][1:], 16) + 1) & 255); bad[i] = ', '.join(p2)
 b, s = run(bad); scr = ' '.join(b.screen())
-check('error: a mistyped byte -> "Check the line at 60048"', 'Check the line at 60048' in scr, scr.strip()[-80:])
+check('error: a mistyped byte -> "Check the line at %s"' % at, 'Check the line at ' + at in scr, scr.strip()[-80:])
 bad = list(src); p2 = list(parts); p2[2], p2[3] = p2[3], p2[2]; bad[i] = ', '.join(p2)
 assert p2[2] != p2[3]
 b, s = run(bad); scr = ' '.join(b.screen())
-check('error: two bytes swapped -> "Check the line at 60048"', 'Check the line at 60048' in scr, scr.strip()[-80:])
+check('error: two bytes swapped -> "Check the line at %s"' % at, 'Check the line at ' + at in scr, scr.strip()[-80:])
+miss = src[dl[10]].split(',')[0].split()[1]
 bad = list(src); del bad[dl[10]]
 b, s = run(bad); scr = ' '.join(b.screen())
-check('error: a missing line -> "DATA out of step at 60160"', 'DATA out of step at 60160' in scr, scr.strip()[-80:])
+check('error: a missing line -> "DATA out of step at %s"' % miss, 'DATA out of step at ' + miss in scr, scr.strip()[-80:])
 print('ALL PASS' if ok else 'FAILURES'); sys.exit(0 if ok else 1)
