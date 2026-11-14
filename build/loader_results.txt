@@ -1,0 +1,9 @@
+loader: memory 60000-61094 equals hbcode.bin            PASS 
+loader: SAVE writes a CODE header "hbcode" 60000,1095   PASS [0, 3, 104, 98, 99, 111, 100, 101, 32, 32, 32, 32, 71, 4, 96, 234]
+loader: the saved data block equals hbcode.bin          PASS 
+loader: reports "Code OK" and "Done", no error          PASS $FB,$FF,$FF,$E0,5652 | >DATA 128134 | + | ] | Code OK: 1095 bytes at 60000. | Saving hbcode. Start the tape. | Done. | ]
+loader: its block is the one on happybat.tap            PASS 
+error: a mistyped byte -> "Check the line at 60048"     PASS E,$0,$7,$FB,$FF,$FF,$E0,5652 >DATA 128134 + ] Check the line at 60048, line 22 ]
+error: two bytes swapped -> "Check the line at 60048"   PASS E,$0,$7,$FB,$FF,$FF,$E0,5652 >DATA 128134 + ] Check the line at 60048, line 22 ]
+error: a missing line -> "DATA out of step at 60160"    PASS $0,$7,$FB,$FF,$FF,$E0,5652 >DATA 128134 + ] DATA out of step at 60160, line 15 ]
+ALL PASS

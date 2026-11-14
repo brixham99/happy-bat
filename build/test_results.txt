@@ -1,0 +1,31 @@
+tape: LOAD "" auto-runs, loads hbcode, shows the title     PASS (2710 frames, 54 s)
+tape: CLEAR 59999 moved RAMTOP                             PASS 59999
+tape: hbcode is in memory (signature "HB")                 PASS 
+tape: no error message on the title screen                 PASS []
+title: the bat bobs up and down                            PASS [60, 61, 62, 63, 64, 65, 66, 67, 68]
+title: the ground scrolls                                  PASS 
+title: no pipes, title mode                                PASS 
+title: help text on the bottom row                         PASS SPACE  flap                               BREAK  stop
+play: SPACE starts a game, score 0                         PASS HAPPY BAT             SCORE 0               BEST 0
+play: no help text on the bottom row                       PASS ''
+gravity: with no key the bat falls, faster and faster      PASS drops [0, 1, 2, 2, 2, 3, 4, 4, 4, 5, 5, 5, 5]
+gravity: the fall speed is limited to vmax (20)            PASS [0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 20, 20, 20]
+flap: SPACE sends the bat up                               PASS y 106 -> 99, speed -14
+flap: holding SPACE flaps once only                        PASS speed after 10 steps held 6
+ground: falling to the ground ends the game                PASS y 152
+game over: the bat turns red                               PASS 0x4a
+game over: score, best and prompt shown                    PASS 
+game over: help text back on the bottom row                PASS SPACE  flap                               BREAK  stop
+restart: SPACE plays again, the box is gone, score 0       PASS 
+ceiling: flapping into the top ends the game               PASS y 0
+pipe: flying into a pipe ends the game                     PASS y 140, pipes at the bat [(18, 56, 134)]
+score: each pipe passed adds one point                     PASS games 1, scores seen [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+best: the best score is kept across games                  PASS best 21
+endurance: 10 more games, restarting each time, no errors  PASS 10 games, best 138
+gap: the first pipe of every game has a 78-line gap        PASS 11 games
+gap: 78 - 2 x score, never under 52; spacing 32 -> 24 steps PASS 534 pipes, gaps [78, 76, 74, 72, 70, 68, 66, 64, 62, 60, 58, 56, 54, 52], spacings [33, 32, 31, 30, 29, 28, 27, 26, 25, 24], wrong []
+gap: narrowed to the 52-line minimum at a high score       PASS smallest 52, top score 137
+BREAK (CAPS+SPACE) stops the program with "Break"          PASS ['Break, line 167']
+memory: FREE is the same after 1 game and after 13 (no leak) PASS FREE 25462 and 25462 bytes
+
+29/29 passed
